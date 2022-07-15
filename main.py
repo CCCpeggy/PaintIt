@@ -1,87 +1,62 @@
-from utils import *
+from utils.settings import *
+from utils.canvas import Canvas
+from utils.button import Button
 
+class PaintAPP:
+    def __init__(self):
+        self.window = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Paint It")
+        self.init_gui()
 
-WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Paint It")
-
-def init_grid(rows, cols, color):
-    grid = []
-
-    for i in range(rows):
-        grid.append([])
-        for _ in range(cols):
-            grid[i].append(color)
-
-    return grid
-
-def draw_grid(win, grid):
-    for i,row in enumerate(grid):
-        for j,pixel in enumerate(row):
-            pygame.draw.rect(win, pixel,(i * PIXEL_SIZE, j * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE))
-
-    if DRAW_GRID_LINES:
-        for i in range(ROWS + 1):
-            pygame.draw.line(win, BLACK, (0, i* PIXEL_SIZE), (WIDTH, i * PIXEL_SIZE))
-
-        for i in range(COLS + 1):
-            pygame.draw.line(win, BLACK, (i* PIXEL_SIZE, 0), (i * PIXEL_SIZE, HEIGHT - TOOLBAR_HEIGHT))
+        self.clock = pygame.time.Clock()
+        self.drawing_color = BLACK
+        
+        while self.run():
+            self.clock.tick(FPS)
+        pygame.quit()
             
-
-def draw(win, grid, buttons):
-    win.fill(BG_COLOR)
-    draw_grid(win, grid)
-
-    for button in buttons:
-        button.draw(win)
-
-    pygame.display.update()
-
-def get_row_col_from_pos(pos):
-    x , y = pos
-    row = x // PIXEL_SIZE
-    col = y // PIXEL_SIZE
-
-    if row >= ROWS:
-        raise IndexError
-
-    return row, col
-
-run = True
-clock = pygame.time.Clock()
-grid = init_grid(ROWS, COLS, BG_COLOR)
-drawing_color = BLACK
-
-button_y = HEIGHT - TOOLBAR_HEIGHT/2 - 25
-buttons = [
-        Button(10, button_y, 50, 50, BLACK),
-        Button(70, button_y, 50, 50, RED),
-        Button(130, button_y, 50, 50, GREEN),
-        Button(190, button_y, 50, 50, BLUE),
-        Button(250, button_y, 50, 50, WHITE, "Erase", BLACK),
-        Button(310, button_y, 50, 50, WHITE , "Clear", BLACK)
-]
-
-
-while run:
-    clock.tick(FPS)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if pygame.mouse.get_pressed()[0]:
-            pos = pygame.mouse.get_pos()
-            try:
-                row, col = get_row_col_from_pos(pos)
-                grid[row][col] = drawing_color
-            except IndexError:
-                for button in buttons:
-                    if not button.clicked(pos):
-                        continue
-                    drawing_color = button.color
-                    if button.text == "Clear":
-                        grid = init_grid(ROWS, COLS, BG_COLOR)
-                        drawing_color = BLACK
+    def init_gui(self):
+        # init canvas
+        self.canvas = Canvas(self.window, 0, 0, WIDTH, (HEIGHT - TOOLBAR_HEIGHT))
+        self.canvas.clear();
+        
+        # init button
+        button_size = 50
+        button_gap = 60
+        button_y = HEIGHT - button_gap
+        self.buttons = [
+            Button(self.window, 10 + button_gap * 0, button_y, button_size, button_size, BLACK),
+            Button(self.window, 10 + button_gap * 1, button_y, button_size, button_size, RED),
+            Button(self.window, 10 + button_gap * 2, button_y, button_size, button_size, GREEN),
+            Button(self.window, 10 + button_gap * 3, button_y, button_size, button_size, BLUE),
+            Button(self.window, 10 + button_gap * 4, button_y, button_size, button_size, WHITE, "Erase", BLACK),
+            Button(self.window, 10 + button_gap * 5, button_y, button_size, button_size, WHITE , "Clear", BLACK)
+        ]
+        self.update_gui()
+            
+    def update_gui(self):
+        for button in self.buttons:
+            button.draw()
+        
+    def run(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                if self.canvas.clicked(pos):
+                    self.canvas.brush(pos[0], pos[1], self.drawing_color, BRUSH_WIDTH)
+                    break
+                for button in self.buttons:
+                    if button.clicked(pos):
+                        self.drawing_color = button.color
+                        if button.text == "Clear":
+                            self.canvas.clear();
+                        break
+        self.update_gui()
+        pygame.display.update()
+        return True
 
 
-    draw(WIN, grid, buttons)
-
-pygame.quit()
+if __name__ == "__main__":
+    app = PaintAPP()
