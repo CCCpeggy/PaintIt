@@ -7,6 +7,10 @@ class Object:
         self.width = width
         self.height = height
         self.win = win
+        
+    def draw(self, color):
+        pygame.draw.rect(
+            self.win, color, (self.x ,self.y, self.width, self.height))
 
     def clicked(self, pos):
         x, y = pos

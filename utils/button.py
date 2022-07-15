@@ -10,9 +10,7 @@ class Button(Object):
         self.text_color = text_color
 
     def draw(self):
-        pygame.draw.rect(
-            self.win, self.color, (self.x ,self.y, self.width, self.height))
-
+        super().draw(self.color)
         if self.text:
             pygame.draw.rect(
                 self.win, BLACK, ( self.x ,self.y, self.width, self.height),2)
@@ -21,3 +19,4 @@ class Button(Object):
             self.win.blit(text_surface, (
                 self.x + self.width / 2 - text_surface.get_width() / 2,
                 self.y + self.height / 2 - text_surface.get_height()/2))
+            

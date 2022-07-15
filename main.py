@@ -1,6 +1,6 @@
 from utils.settings import *
 from utils.canvas import Canvas
-from utils.button import Button
+from utils.button import *tj
 
 class PaintAPP:
     def __init__(self):
@@ -35,6 +35,7 @@ class PaintAPP:
         self.update_gui()
             
     def update_gui(self):
+        self.canvas.update()
         for button in self.buttons:
             button.draw()
         
@@ -46,7 +47,8 @@ class PaintAPP:
                 pos = pygame.mouse.get_pos()
                 if self.canvas.clicked(pos):
                     self.canvas.brush(pos[0], pos[1], self.drawing_color, BRUSH_WIDTH)
-                    break
+                else:
+                    self.canvas.no_brush()
                 for button in self.buttons:
                     if button.clicked(pos):
                         self.drawing_color = button.color
