@@ -1,3 +1,4 @@
+import cv2
 from .object import Object
 from .settings import BLACK, pygame
 
@@ -31,4 +32,19 @@ class Canvas(Object):
     def clear(self):
         self.surface.fill(BLACK)
 
-    
+    def to_cv2_image(self):
+        # https://stackoverflow.com/questions/53101698/how-to-convert-a-pygame-image-to-open-cv-image
+        #  create a copy of the surface
+        view = pygame.surfarray.array3d(self.surface)
+        #  convert from (width, height, channel) to (height, width, channel)
+        view = view.transpose([1, 0, 2])
+        #  convert from rgb to bgr
+        mask = cv2.cvtColor(view, cv2.COLOR_RGB2GRAY)
+        mask[mask > 0] = 255
+        return mask
+
+    def set_by_numpy(self, img):
+        h, w = img.shape[:2]
+        self.surface = pygame.image.frombuffer(img.flatten(), (w, h), "RGB")
+        self.surface.set_colorkey((0,0,0))
+        self.surface.set_alpha(128)
