@@ -22,10 +22,11 @@ class PaintAPP:
             
     def init_gui(self):
         # init image
-        self.image = Image(self.window, 0, 0, WIDTH, (HEIGHT - TOOLBAR_HEIGHT), "image.png")
+        image_path = self.get_image_path()
+        self.image = Image(self.window, 0, 0, WIDTH, (HEIGHT - TOOLBAR_HEIGHT), image_path)
         
         # init canvas
-        self.canvas = Canvas(self.window, 0, 0, WIDTH, (HEIGHT - TOOLBAR_HEIGHT), self.image.img_width, self.image.img_height)
+        self.canvas = Canvas(self.window, 0, 0, self.image.width, self.image.height, self.image.img_width, self.image.img_height)
         self.canvas.clear();
         
         # init button
@@ -34,11 +35,23 @@ class PaintAPP:
             Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 0, button_y, BUTTON_SIZE, BUTTON_SIZE, RED, lambda: self.set_rawing_color(RED)),
             Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 1, button_y, BUTTON_SIZE, BUTTON_SIZE, GREEN, lambda: self.set_rawing_color(GREEN)),
             Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 2, button_y, BUTTON_SIZE, BUTTON_SIZE, BLUE, lambda: self.set_rawing_color(BLUE)),
-            Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 3, button_y, BUTTON_SIZE, BUTTON_SIZE, WHITE, lambda: self.set_rawing_color(BG_COLOR), "Erase", BLACK),
-            Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 4, button_y, BUTTON_SIZE, BUTTON_SIZE, WHITE, lambda: (self.canvas.clear()), "BLACK", BLACK)
+            Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 3, button_y, BUTTON_SIZE, BUTTON_SIZE, WHITE, lambda: self.set_rawing_color(BLACK), "Erase", BLACK),
+            Button(self.window, 10 + (BUTTON_SIZE + BUTTON_GAP) * 4, button_y, BUTTON_SIZE, BUTTON_SIZE, WHITE, lambda: (self.canvas.clear()), "Clear", BLACK)
         ]
         self.redraw_gui()
         
+    def get_image_path(self):
+        return 'image.png'
+        import tkinter as tk
+        from tkinter import filedialog
+        root = tk.Tk()
+        root.withdraw()
+        file_path = filedialog.askopenfilename(
+            title='Open an image',
+            initialdir='.',
+            filetypes=(('image files', '*.png'), ))
+        return file_path
+
     def redraw_gui(self):
         self.window.fill(WHITE)
         for button in self.buttons:
